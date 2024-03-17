@@ -6,7 +6,11 @@ let nextId = JSON.parse(localStorage.getItem("nextId"));
 
 // Todo: create a function to generate a unique task id
 function generateTaskId() {
-
+    if (taskList) {
+        return taskList[taskList.lenghth - 1].id + 1
+    } else {
+        return 1;
+    }
 }
 
 // Todo: create a function to create a task card
