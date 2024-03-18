@@ -26,7 +26,7 @@ function generateTaskId() {
 
 // Todo: create a function to create a task card
 function createTaskCard(task) {
-// What does this function do?
+// Is this to create the card element but not oush to page?
 
 }
 
