@@ -1,29 +1,25 @@
 // Retrieve tasks and nextId from localStorage. If null, create an empty array.
 let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
-let nextId = JSON.parse(localStorage.getItem("nextId"))  || [];
-
+let nextId = JSON.parse(localStorage.getItem("nextId"))  || 0;
+console.log(nextId);
 
 // Create elements for divs To Do, In Progress, Done
-const $toDoEl = $('#todo-cards');
-const $inProgressEl = $('#in-progress');
-const $doneEl = $('#done');
+const $toDoEl = $('#todo-cards').addClass('.lane');
+const $inProgressEl = $('#in-progress').addClass('.lane');
+const $doneEl = $('#done').addClass('.lane');
 
 // Todo: create a function to generate a unique task id
 function generateTaskId() {
-    // Check if array is null
-    if (nextId.length == 0) {
-        // If array is empty, ID can be 1.
-        localStorage.setItem('nextId', JSON.stringify('1'))
-    } else {
-    // New ID is array length + 1
-        localStorage.setItem('nextId', JSON.stringify(nextId.length + 1))
-    }
+        nextId++
+        // NextID + 1
+        localStorage.setItem('nextId', nextId);
+        console.log(nextId);
 }
 
 // Todo: create a function to create a task card
 function createTaskCard(task) {
     // Should I add taskID to the card or to the delete button?
-    const $cardEl = $('<div>').attr('class', 'card').attr('id', task.id);
+    const $cardEl = $('<div>').addClass('card drag-box').attr('id', task.id);
     const $cardBodyEl = $('<div>').attr('class', 'card-body');
     const $cardTitleEl = $('<h5>').attr('class', 'card-heading');
     const $cardTextEl = $('<p>').attr('class', 'card-text');
@@ -38,17 +34,33 @@ function createTaskCard(task) {
     $cardDate.text(task.date);
 
     // Create card by appending elements into card body.
-    // Add $cardTextEl once completed
-    $cardBodyEl.append($cardTitleEl);
-    $cardBodyEl.append($cardTextEl);
-    $cardBodyEl.append($cardDate);
-    $cardBodyEl.append($cardButtonEl);
+    $cardBodyEl.append($cardTitleEl, $cardTextEl, $cardDate, $cardButtonEl);
 
-    // Add alle lemnts into card via cardBodyEl
+    // Add all elemnts into card via cardBodyEl
     $cardEl.append($cardBodyEl);
+
 
     // Add card into To Do section
     $toDoEl.append($cardEl);
+
+    
+    // Add draggable jQuery
+    $( ".drag-box" ).draggable({
+        opacity: 0.7,
+        zIndex: 100,
+        // Creates a clone card when dragging. Visual element only.
+        helper: function (e) {
+          // If parent element is grabbed, finds draggable parent.
+          const original = $(e.target).hasClass('.drag-box')
+            ? $(e.target)
+            : $(e.target).closest('.drag-box');
+          // Ensure width matches original card.
+          return original.clone().css({
+            width: original.outerWidth(),
+          });
+        },
+      });
+        
 }
 
 // Todo: create a function to render the task list and make cards draggable
@@ -74,7 +86,8 @@ function handleAddTask(event){
         title: titleEl.value,
         date: dateEl.value,
         taskData: taskDataEl.value,
-        id: newId
+        id: newId,
+        status: 'To Do'
     };
 
 
@@ -98,10 +111,32 @@ function handleDeleteTask(event){
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
 
+  // Get id from dropped element.
+  const taskId = ui.draggable[0].id;
+
+  // ? Get the id of the lane that the card was dropped into
+  const newStatus = event.target.id;
+
+  for (let project of projects) {
+    // ? Find the project card by the `id` and update the project status.
+    if (project.id === taskId) {
+      project.status = newStatus;
+    }
+  }
+  // ? Save the updated projects array to localStorage (overwritting the previous one) and render the new project data to the screen.
+  localStorage.setItem('projects', JSON.stringify(projects));
+  printProjectData();
 }
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
     // Add event listener for submit button to execute handleAddTask function.
     $('#saveBtn').on('click', handleAddTask);
+
+    $( "#inputDate" ).datepicker();
+
+    $('.lane').droppable({
+        accept: '.draggable',
+        drop: handleDrop,
+      });
 });
