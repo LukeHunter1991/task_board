@@ -16,7 +16,7 @@ function generateTaskId() {
 
 // Todo: create a function to create a task card
 function createTaskCard(task) {
-    // Should I add taskID to the card or to the delete button?
+    // Set up task card from object values.
     const $cardEl = $('<div>').addClass('card dragbox').attr('id', task.id);
     const $cardBodyEl = $('<div>').attr('class', 'card-body');
     const $cardTitleEl = $('<h5>').attr('class', 'card-heading');
@@ -78,17 +78,16 @@ function handleAddTask(event){
 
 
     // Calls function to create a new task ID.
-    const newId = generateTaskId();
+    generateTaskId();
 
     // Create object to store new task.
     const taskObj = {
         title: titleEl.value,
         date: dateEl.value,
         taskData: taskDataEl.value,
-        id: newId,
+        id: nextId,
         status: 'todo-cards'
     };
-
 
 
     // Add current task object to array.
@@ -110,15 +109,13 @@ function handleDeleteTask(event){
 
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
-    console.log(ui);
+
 
   // Get id from dropped element.
-  const taskId = ui.draggable[0].dataset.projectId;
+  const taskId = ui.draggable[0].id;
 
   // ? Get the id of the lane that the card was dropped into
   const newStatus = event.target.id;
-
-  console.log(newStatus);
 
   const updateTasks = JSON.parse(localStorage.getItem('tasks'));
 
@@ -129,7 +126,7 @@ function handleDrop(event, ui) {
     }
   }
   // ? Save the updated projects array to localStorage (overwritting the previous one) and render the new project data to the screen.
-  localStorage.setItem('projects', JSON.stringify(updateTasks));
+  localStorage.setItem('updateTasks', JSON.stringify(updateTasks));
   //printProjectData();
 }
 
