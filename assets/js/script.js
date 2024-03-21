@@ -1,7 +1,6 @@
 // Retrieve tasks and nextId from localStorage. If null, create an empty array.
 let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
 let nextId = JSON.parse(localStorage.getItem("nextId"))  || 0;
-console.log(nextId);
 
 // Create elements for divs To Do, In Progress, Done
 const $toDoEl = $('#todo-cards').addClass('.lane');
@@ -13,13 +12,12 @@ function generateTaskId() {
         nextId++
         // NextID + 1
         localStorage.setItem('nextId', nextId);
-        console.log(nextId);
 }
 
 // Todo: create a function to create a task card
 function createTaskCard(task) {
     // Should I add taskID to the card or to the delete button?
-    const $cardEl = $('<div>').addClass('card drag-box').attr('id', task.id);
+    const $cardEl = $('<div>').addClass('card dragbox').attr('id', task.id);
     const $cardBodyEl = $('<div>').attr('class', 'card-body');
     const $cardTitleEl = $('<h5>').attr('class', 'card-heading');
     const $cardTextEl = $('<p>').attr('class', 'card-text');
@@ -43,17 +41,18 @@ function createTaskCard(task) {
     // Add card into To Do section
     $toDoEl.append($cardEl);
 
+    $cardButtonEl.on('click', handleDeleteTask);
     
     // Add draggable jQuery
-    $( ".drag-box" ).draggable({
+    $( ".dragbox" ).draggable({
         opacity: 0.7,
         zIndex: 100,
         // Creates a clone card when dragging. Visual element only.
         helper: function (e) {
           // If parent element is grabbed, finds draggable parent.
-          const original = $(e.target).hasClass('.drag-box')
+          const original = $(e.target).hasClass('.dragbox')
             ? $(e.target)
-            : $(e.target).closest('.drag-box');
+            : $(e.target).closest('.dragbox');
           // Ensure width matches original card.
           return original.clone().css({
             width: original.outerWidth(),
@@ -87,7 +86,7 @@ function handleAddTask(event){
         date: dateEl.value,
         taskData: taskDataEl.value,
         id: newId,
-        status: 'To Do'
+        status: 'todo-cards'
     };
 
 
@@ -105,27 +104,33 @@ function handleAddTask(event){
 
 // Todo: create a function to handle deleting a task
 function handleDeleteTask(event){
+    
 
 }
 
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
+    console.log(ui);
 
   // Get id from dropped element.
-  const taskId = ui.draggable[0].id;
+  const taskId = ui.draggable[0].dataset.projectId;
 
   // ? Get the id of the lane that the card was dropped into
   const newStatus = event.target.id;
 
-  for (let project of projects) {
+  console.log(newStatus);
+
+  const updateTasks = JSON.parse(localStorage.getItem('tasks'));
+
+  for (let update of updateTasks) {
     // ? Find the project card by the `id` and update the project status.
-    if (project.id === taskId) {
-      project.status = newStatus;
+    if (update.id === taskId) {
+        update.status = newStatus;
     }
   }
   // ? Save the updated projects array to localStorage (overwritting the previous one) and render the new project data to the screen.
-  localStorage.setItem('projects', JSON.stringify(projects));
-  printProjectData();
+  localStorage.setItem('projects', JSON.stringify(updateTasks));
+  //printProjectData();
 }
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
@@ -136,7 +141,7 @@ $(document).ready(function () {
     $( "#inputDate" ).datepicker();
 
     $('.lane').droppable({
-        accept: '.draggable',
+        accept: '.dragbox',
         drop: handleDrop,
       });
 });
