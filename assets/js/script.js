@@ -20,7 +20,7 @@ function createTaskCard(task) {
     // Set up task card from object values.
     const $cardEl = $('<div>').addClass('card dragbox').attr('id', task.id);
     const $cardBodyEl = $('<div>').attr('class', 'card-body');
-    const $cardTitleEl = $('<h5>').attr('class', 'card-heading');
+    const $cardTitleEl = $('<h5>').attr('class', 'card-header');
     const $cardTextEl = $('<p>').attr('class', 'card-text');
     const $cardDate = $('<p>').attr('class', 'card-date');
     const $cardButtonEl = $('<a>').attr('href', '#').attr('class', 'btn btn-primary deleteBtn').text('Delete').attr('id', task.id);
@@ -32,10 +32,10 @@ function createTaskCard(task) {
     $cardDate.text(task.date);
 
     // Create card by appending elements into card body.
-    $cardBodyEl.append($cardTitleEl, $cardTextEl, $cardDate, $cardButtonEl);
+    $cardBodyEl.append($cardTextEl, $cardDate, $cardButtonEl);
 
     // Add all elemnts into card via cardBodyEl
-    $cardEl.append($cardBodyEl);
+    $cardEl.append($cardTitleEl, $cardBodyEl);
 
       return $cardEl;
         
@@ -82,7 +82,7 @@ function rendertaskList() {
 
 }
 
-// Todo: create a function to handle adding a new task
+// Create a function to handle adding a new task
 function handleAddTask(event){
     event.preventDefault();
 
@@ -104,6 +104,9 @@ function handleAddTask(event){
         status: "to-do"
     };
 
+    // Clear form
+    document.getElementById("form").reset();
+
     // Add current task object to array.
     taskList.push(taskObj);
 
@@ -115,7 +118,7 @@ function handleAddTask(event){
 
 }
 
-// Todo: create a function to handle deleting a task
+// Creates a function to handle deleting a task
 function handleDeleteTask(event){
     const deleteId = event.target.id;
     let taskList = JSON.parse(localStorage.getItem("tasks"));
@@ -127,13 +130,11 @@ function handleDeleteTask(event){
       }
     });
 
-    console.log(taskList);
-
   
     // Save updated array to local storage.
     localStorage.setItem('tasks', JSON.stringify(taskList));
   
-    //Here we use our other function to print projects back to the screen
+    //Here we use our other function to render our updated task list from local storage.
     rendertaskList();
 
 }
@@ -144,18 +145,18 @@ function handleDrop(event, ui) {
   // Get id from dropped element.
   const taskId = ui.draggable[0].id;
 
-  // ? Get the id of the lane that the card was dropped into
+  // Get the id of the lane that the card was dropped into.
   const newStatus = event.target.id;
 
   const updateTasks = JSON.parse(localStorage.getItem('tasks'));
 
   for (let update of updateTasks) {
-    // ? Find the project card by the `id` and update the project status.
+    //Find the task by the `id` and update the status to the relevant lane.
     if (update.id == taskId) {
         update.status = newStatus;
     }
   }
-  // Save the updated projects array to localStorage (overwritting the previous one) and render the new project data to the screen.
+  // Save the updated tasks array to localStorage.
   localStorage.setItem('tasks', JSON.stringify(updateTasks));
   rendertaskList();
 }
