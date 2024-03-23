@@ -14,3 +14,14 @@ body {
 .task-card:hover {
   cursor: grab;
 }
+
+/* Added CSS to style cards based on urgency. Could also have pushed attribute updates using js. */
+
+.overdue {
+  background-color: rgb(236, 25, 25);
+  color: white;
+}
+
+.due {
+  background-color: rgb(241, 204, 36);
+}
